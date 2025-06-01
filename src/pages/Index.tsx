@@ -1,8 +1,8 @@
 
-import RacingGame from '@/components/RacingGame';
+import WatchPartyApp from '@/components/WatchPartyApp';
 
 const Index = () => {
-  return <RacingGame />;
+  return <WatchPartyApp />;
 };
 
 export default Index;

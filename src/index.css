@@ -60,19 +60,69 @@
 }
 
 @layer components {
-  .racing-gradient {
-    background: linear-gradient(135deg, #00D4FF 0%, #BF00FF 50%, #FF073A 100%);
+  .movie-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   }
   
-  .neon-border {
+  .video-border {
     border: 2px solid transparent;
-    background: linear-gradient(45deg, #00D4FF, #BF00FF, #FF073A) border-box;
+    background: linear-gradient(45deg, #667eea, #764ba2, #f093fb) border-box;
     -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: destination-out;
     mask-composite: exclude;
   }
   
-  .road-line {
-    background: linear-gradient(to bottom, transparent 0%, #FFF 50%, transparent 100%);
+  .chat-message {
+    background: linear-gradient(to bottom, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  }
+
+  /* Custom video controls styling */
+  video::-webkit-media-controls {
+    display: none !important;
+  }
+  
+  video::-webkit-media-controls-enclosure {
+    display: none !important;
+  }
+
+  /* Custom range slider styling */
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-webkit-slider-track {
+    background: #374151;
+    height: 8px;
+    border-radius: 4px;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    background: #3b82f6;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    border: 2px solid white;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-moz-range-track {
+    background: #374151;
+    height: 8px;
+    border-radius: 4px;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    background: #3b82f6;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    border: 2px solid white;
+    cursor: pointer;
   }
 }
+
