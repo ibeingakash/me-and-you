@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,13 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				racing: {
+					blue: '#00D4FF',
+					red: '#FF073A',
+					green: '#39FF14',
+					purple: '#BF00FF',
+					yellow: '#FFFF00'
 				}
 			},
 			borderRadius: {
@@ -84,11 +92,34 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'road-move': {
+					'0%': { transform: 'translateY(-100px)' },
+					'100%': { transform: 'translateY(100vh)' }
+				},
+				'neon-pulse': {
+					'0%, 100%': { 
+						textShadow: '0 0 5px currentColor, 0 0 10px currentColor, 0 0 15px currentColor',
+						boxShadow: '0 0 5px currentColor'
+					},
+					'50%': { 
+						textShadow: '0 0 2px currentColor, 0 0 5px currentColor, 0 0 8px currentColor',
+						boxShadow: '0 0 2px currentColor'
+					}
+				},
+				'car-drift': {
+					'0%': { transform: 'rotate(0deg)' },
+					'25%': { transform: 'rotate(-2deg)' },
+					'75%': { transform: 'rotate(2deg)' },
+					'100%': { transform: 'rotate(0deg)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'road-move': 'road-move 3s linear infinite',
+				'neon-pulse': 'neon-pulse 2s ease-in-out infinite',
+				'car-drift': 'car-drift 0.3s ease-in-out'
 			}
 		}
 	},
