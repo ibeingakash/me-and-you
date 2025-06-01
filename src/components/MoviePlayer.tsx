@@ -1,10 +1,10 @@
-
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Play, Pause, Volume2, Maximize, Upload, Link } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { validateUrl, sanitizeText } from '@/utils/security';
 
 interface MoviePlayerProps {
   isHost: boolean;
@@ -63,24 +63,66 @@ const MoviePlayer: React.FC<MoviePlayerProps> = ({ isHost }) => {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file type
+      const allowedTypes = ['video/mp4', 'video/webm', 'video/ogg'];
+      if (!allowedTypes.includes(file.type)) {
+        toast({
+          title: "Invalid file type",
+          description: "Please upload a valid video file (MP4, WebM, or OGG).",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Check file size (limit to 500MB)
+      const maxSize = 500 * 1024 * 1024; // 500MB
+      if (file.size > maxSize) {
+        toast({
+          title: "File too large",
+          description: "Please upload a video file smaller than 500MB.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const url = URL.createObjectURL(file);
       setVideoUrl(url);
       setHasVideo(true);
       toast({
         title: "Video loaded",
-        description: `${file.name} is ready to play`,
+        description: `${sanitizeText(file.name)} is ready to play`,
       });
     }
   };
 
   const handleUrlLoad = () => {
-    if (videoUrl) {
-      setHasVideo(true);
+    const sanitizedUrl = sanitizeText(videoUrl);
+    
+    if (!validateUrl(sanitizedUrl)) {
       toast({
-        title: "Video loaded",
-        description: "Video from URL is ready to play",
+        title: "Invalid URL",
+        description: "Please enter a valid HTTP or HTTPS URL.",
+        variant: "destructive"
       });
+      return;
     }
+
+    setVideoUrl(sanitizedUrl);
+    setHasVideo(true);
+    toast({
+      title: "Video loaded",
+      description: "Video from URL is ready to play",
+    });
+  };
+
+  const handleVideoError = () => {
+    toast({
+      title: "Video load error",
+      description: "Failed to load the video. Please check the URL or try a different file.",
+      variant: "destructive"
+    });
+    setHasVideo(false);
+    setVideoUrl('');
   };
 
   const formatTime = (time: number) => {
@@ -110,20 +152,22 @@ const MoviePlayer: React.FC<MoviePlayerProps> = ({ isHost }) => {
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept="video/*"
+                      accept="video/mp4,video/webm,video/ogg"
                       onChange={handleFileUpload}
                       className="hidden"
                     />
+                    <p className="text-xs text-gray-400 mt-1">Max 500MB • MP4, WebM, OGG only</p>
                   </div>
                   
                   <div className="text-white text-sm">or</div>
                   
                   <div className="space-y-2">
                     <Input
-                      placeholder="Enter video URL"
+                      placeholder="Enter video URL (https://...)"
                       value={videoUrl}
-                      onChange={(e) => setVideoUrl(e.target.value)}
+                      onChange={(e) => setVideoUrl(e.target.value.slice(0, 2000))}
                       className="bg-white/20 border-white/30 text-white placeholder:text-gray-300"
+                      maxLength={2000}
                     />
                     <Button
                       onClick={handleUrlLoad}
@@ -162,7 +206,9 @@ const MoviePlayer: React.FC<MoviePlayerProps> = ({ isHost }) => {
           className="w-full h-full object-contain"
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
+          onError={handleVideoError}
           onClick={handlePlayPause}
+          crossOrigin="anonymous"
         />
         
         {/* Play/Pause Overlay */}

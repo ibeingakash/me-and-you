@@ -4,24 +4,55 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Video, Plus } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import WatchPartyRoom from './WatchPartyRoom';
+import { generateSecureRoomCode, validateUsername, sanitizeText } from '@/utils/security';
 
 const WatchPartyApp = () => {
   const [currentRoom, setCurrentRoom] = useState<string | null>(null);
   const [isHost, setIsHost] = useState(false);
   const [roomCode, setRoomCode] = useState('');
   const [userName, setUserName] = useState('');
+  const { toast } = useToast();
 
   const createRoom = () => {
-    if (!userName.trim()) return;
-    const newRoomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const sanitizedName = sanitizeText(userName);
+    if (!validateUsername(sanitizedName)) {
+      toast({
+        title: "Invalid username",
+        description: "Username must be 1-20 characters and contain only letters, numbers, spaces, hyphens, or underscores.",
+        variant: "destructive"
+      });
+      return;
+    }
+    const newRoomCode = generateSecureRoomCode();
     setCurrentRoom(newRoomCode);
     setIsHost(true);
   };
 
   const joinRoom = () => {
-    if (!userName.trim() || !roomCode.trim()) return;
-    setCurrentRoom(roomCode.toUpperCase());
+    const sanitizedName = sanitizeText(userName);
+    const sanitizedRoomCode = sanitizeText(roomCode);
+    
+    if (!validateUsername(sanitizedName)) {
+      toast({
+        title: "Invalid username",
+        description: "Username must be 1-20 characters and contain only letters, numbers, spaces, hyphens, or underscores.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (sanitizedRoomCode.length < 6) {
+      toast({
+        title: "Invalid room code",
+        description: "Please enter a valid room code.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setCurrentRoom(sanitizedRoomCode.toUpperCase());
     setIsHost(false);
   };
 
@@ -29,7 +60,7 @@ const WatchPartyApp = () => {
     return (
       <WatchPartyRoom
         roomCode={currentRoom}
-        userName={userName}
+        userName={sanitizeText(userName)}
         isHost={isHost}
         onLeaveRoom={() => {
           setCurrentRoom(null);
@@ -60,10 +91,11 @@ const WatchPartyApp = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <Input
-                placeholder="Enter your name"
+                placeholder="Enter your name (letters, numbers, spaces only)"
                 value={userName}
-                onChange={(e) => setUserName(e.target.value)}
+                onChange={(e) => setUserName(e.target.value.slice(0, 20))}
                 className="bg-white/20 border-white/30 text-white placeholder:text-gray-300"
+                maxLength={20}
               />
               <Button
                 onClick={createRoom}
@@ -85,16 +117,18 @@ const WatchPartyApp = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <Input
-                placeholder="Enter your name"
+                placeholder="Enter your name (letters, numbers, spaces only)"
                 value={userName}
-                onChange={(e) => setUserName(e.target.value)}
+                onChange={(e) => setUserName(e.target.value.slice(0, 20))}
                 className="bg-white/20 border-white/30 text-white placeholder:text-gray-300"
+                maxLength={20}
               />
               <Input
                 placeholder="Enter room code"
                 value={roomCode}
-                onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+                onChange={(e) => setRoomCode(e.target.value.toUpperCase().slice(0, 10))}
                 className="bg-white/20 border-white/30 text-white placeholder:text-gray-300"
+                maxLength={10}
               />
               <Button
                 onClick={joinRoom}
